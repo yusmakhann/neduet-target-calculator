@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEDUET Multi-Subject Target Calculator</title>
+    <style>
+        :root {
+            --primary: #243b53;
+            --primary-light: #334e68;
+            --accent: #3b82f6;
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-main: #102a43;
+            --text-muted: #486581;
+            --border: #bcccdc;
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            padding: 20px; 
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .header-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 { 
+            color: var(--primary); 
+            margin-bottom: 5px;
+        }
+        
+        p.subtitle {
+            color: var(--text-muted);
+            margin-top: 0;
+            font-size: 1.1em;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            border-top: 5px solid var(--primary-light);
+        }
+
+        .card-header {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .card-header input[type="text"] {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary);
+            border: 1px dashed transparent;
+            background: transparent;
+            padding: 5px 0;
+            width: 100%;
+            transition: border 0.2s;
+        }
+        
+        .card-header input[type="text"]:focus {
+            border-bottom: 1px dashed var(--accent);
+            outline: none;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        label { 
+            display: block; 
+            font-weight: 600; 
+            margin-bottom: 6px; 
+            font-size: 0.85em; 
+            color: var(--text-muted); 
+        }
+
+        input[type="number"], select { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid var(--border); 
+            border-radius: 6px; 
+            font-size: 0.95em; 
+            box-sizing: border-box;
+            background-color: #f8fafc;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background-color: #fff;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 15px; 
+            font-size: 0.9em;
+        }
+
+        th, td { 
+            padding: 8px 10px; 
+            text-align: center; 
+            border-bottom: 1px solid #e2e8f0; 
+        }
+
+        th { 
+            background-color: var(--primary); 
+            color: white; 
+            font-weight: 600; 
+        }
+
+        .impossible { color: #e53e3e; font-size: 0.9em; background: #fed7d7; padding: 2px 6px; border-radius: 4px; }
+        .guaranteed { color: #2f855a; font-weight: bold; background: #c6f6d5; padding: 2px 6px; border-radius: 4px; }
+        .highlight { background-color: #ebf8ff; border-left: 3px solid #3182ce; }
+        .highlight td:first-child strong { color: #2b6cb0; }
+        
+        /* Specific adjustments for Grade Point column */
+        .gp-col { font-family: monospace; font-size: 1.1em; color: #4a5568; }
+
+        @media (max-width: 600px) {
+            .dashboard { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h1>Semester Target Marks Dashboard</h1>
+        <p class="subtitle">Calculate your required final marks for 5 subjects simultaneously</p>
+    </div>
+
+    <div class="dashboard" id="dashboard">
+        <!-- Cards injected via JS -->
+    </div>
+
+    <script>
+        const grades = [
+            { grade: 'A+', gp: '4.0', min: 94 },
+            { grade: 'A',  gp: '4.0', min: 85 },
+            { grade: 'A-', gp: '3.7', min: 80 },
+            { grade: 'B+', gp: '3.4', min: 75 },
+            { grade: 'B',  gp: '3.0', min: 70 },
+            { grade: 'B-', gp: '2.7', min: 67 },
+            { grade: 'C+', gp: '2.4', min: 64 },
+            { grade: 'C',  gp: '2.0', min: 60 },
+            { grade: 'C-', gp: '1.7', min: 57 },
+            { grade: 'D+', gp: '1.4', min: 54 },
+            { grade: 'D',  gp: '1.0', min: 50 }
+        ];
+
+        // Pre-populating with subjects
+        const subjects = [
+            { title: "CS-252: Computer Architecture & Org.", type: "both" },
+            { title: "CT-261: Database Management Systems", type: "both" },
+            { title: "EA-218: Business Communication", type: "both" },
+            { title: "MT-272: Linear Algebra & Geometry", type: "theory" },
+            { title: "EC-209: Financial & Cost Accounting", type: "theory" }
+        ];
+
+        function initDashboard() {
+            const dashboard = document.getElementById('dashboard');
+            
+            subjects.forEach((sub, i) => {
+                const isBoth = sub.type === 'both';
+                const prDisplay = isBoth ? 'block' : 'none';
+                
+                const cardHTML = `
+                    <div class="card" id="card-${i}">
+                        <div class="card-header">
+                            <input type="text" value="${sub.title}" placeholder="Enter Course Name">
+                            <select id="type-${i}" onchange="toggleType(${i})" style="margin-top: 10px;">
+                                <option value="theory" ${!isBoth ? 'selected' : ''}>Theory Only (100 Marks)</option>
+                                <option value="both" ${isBoth ? 'selected' : ''}>Theory + Practical (150 Marks)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row full">
+                            <div>
+                                <label>Theory Sessional (out of 40)</label>
+                                <input type="number" id="thSessional-${i}" min="0" max="40" value="0" step="0.5" oninput="calculate(${i})">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row pr-group-${i}" style="display: ${prDisplay};">
+                            <div>
+                                <label>Pr. Sessional (out of 30)</label>
+                                <input type="number" id="prSessional-${i}" min="0" max="30" value="0" step="0.5" oninput="calculate(${i})">
+                            </div>
+                            <div>
+                                <label>Pr. Final/Lab (out of 20)</label>
+                                <input type="number" id="prFinal-${i}" min="0" max="20" value="0" step="0.5" oninput="calculate(${i})">
+                            </div>
+                        </div>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Grade</th>
+                                    <th>GP</th>
+                                    <th>Min %</th>
+                                    <th>Th. Final Needed (Max 60)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-${i}">
+                                <!-- Filled by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                dashboard.innerHTML += cardHTML;
+            });
+
+            // Initial calculation for all
+            subjects.forEach((_, i) => calculate(i));
+        }
+
+        function toggleType(index) {
+            const type = document.getElementById(`type-${index}`).value;
+            const prGroups = document.querySelectorAll(`.pr-group-${index}`);
+            prGroups.forEach(el => el.style.display = type === 'both' ? 'flex' : 'none');
+            calculate(index);
+        }
+
+        function calculate(index) {
+            const type = document.getElementById(`type-${index}`).value;
+            let thSessional = parseFloat(document.getElementById(`thSessional-${index}`).value) || 0;
+            let prSessional = parseFloat(document.getElementById(`prSessional-${index}`).value) || 0;
+            let prFinal = parseFloat(document.getElementById(`prFinal-${index}`).value) || 0;
+            
+            const tbody = document.getElementById(`tbody-${index}`);
+            tbody.innerHTML = '';
+            
+            let maxFinal = 60;
+            let highestAchievableIndex = -1;
+
+            grades.forEach((g, idx) => {
+                let requiredFinal = 0;
+                if (type === 'theory') {
+                    requiredFinal = g.min - thSessional;
+                } else {
+                    requiredFinal = (g.min * 1.5) - (thSessional + prSessional + prFinal);
+                }
+                
+                let statusHtml = '';
+                let isAchievable = false;
+                
+                if (requiredFinal > maxFinal) {
+                    statusHtml = '<span class="impossible">Imp. (>' + maxFinal + ')</span>';
+                } else if (requiredFinal <= 0) {
+                    statusHtml = '<span class="guaranteed">Guaranteed</span>';
+                    isAchievable = true;
+                } else {
+                    statusHtml = '<strong>' + requiredFinal.toFixed(1) + '</strong>';
+                    isAchievable = true;
+                }
+
+                if (isAchievable && highestAchievableIndex === -1) {
+                    highestAchievableIndex = idx;
+                }
+
+                const row = document.createElement('tr');
+                if (idx === highestAchievableIndex) row.classList.add('highlight');
+                
+                row.innerHTML = `
+                    <td><strong>${g.grade}</strong></td>
+                    <td class="gp-col">${g.gp}</td>
+                    <td>${g.min}%</td>
+                    <td>${statusHtml}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Run on load
+        window.onload = initDashboard;
+    </script>
+</body>
+</html>
