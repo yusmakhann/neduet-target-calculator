@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEDUET Multi-Subject Target Calculator</title>
+    <title>GPA Stress Calculator</title>
     <style>
         :root {
             --primary: #243b53;
@@ -16,44 +16,122 @@
             --border: #bcccdc;
         }
 
-        body { 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-            background-color: var(--bg-color); 
-            color: var(--text-main); 
-            padding: 20px; 
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
             margin: 0;
             line-height: 1.5;
         }
-        
+
         .header-container {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
-        h1 { 
-            color: var(--primary); 
+        h1 {
+            color: var(--primary);
             margin-bottom: 5px;
         }
-        
+
         p.subtitle {
             color: var(--text-muted);
             margin-top: 0;
-            font-size: 1.1em;
+            font-size: 1.05em;
+        }
+
+        .toolbar {
+            max-width: 1400px;
+            margin: 0 auto 20px auto;
+            background: var(--card-bg);
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stats-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 8px 14px;
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.78em;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 1.15em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .actions-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        button {
+            padding: 9px 14px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: opacity 0.2s, background-color 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.92;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: #ffffff;
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .btn-remove {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 4px 10px;
+            font-size: 0.8em;
+            align-self: flex-end;
         }
 
         .dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
             gap: 25px;
             max-width: 1400px;
             margin: 0 auto;
         }
 
-        .card { 
-            background: var(--card-bg); 
-            padding: 25px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             border-top: 5px solid var(--primary-light);
         }
 
@@ -65,8 +143,15 @@
             padding-bottom: 10px;
         }
 
+        .card-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
         .card-header input[type="text"] {
-            font-size: 1.2em;
+            font-size: 1.15em;
             font-weight: bold;
             color: var(--primary);
             border: 1px dashed transparent;
@@ -75,7 +160,7 @@
             width: 100%;
             transition: border 0.2s;
         }
-        
+
         .card-header input[type="text"]:focus {
             border-bottom: 1px dashed var(--accent);
             outline: none;
@@ -87,25 +172,25 @@
             gap: 15px;
             margin-bottom: 15px;
         }
-        
+
         .form-row.full {
             grid-template-columns: 1fr;
         }
 
-        label { 
-            display: block; 
-            font-weight: 600; 
-            margin-bottom: 6px; 
-            font-size: 0.85em; 
-            color: var(--text-muted); 
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.85em;
+            color: var(--text-muted);
         }
 
-        input[type="number"], select { 
-            width: 100%; 
-            padding: 10px; 
-            border: 1px solid var(--border); 
-            border-radius: 6px; 
-            font-size: 0.95em; 
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95em;
             box-sizing: border-box;
             background-color: #f8fafc;
         }
@@ -116,32 +201,47 @@
             background-color: #fff;
         }
 
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 15px; 
+        .card-summary {
+            font-size: 0.88em;
+            color: var(--text-muted);
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
             font-size: 0.9em;
         }
 
-        th, td { 
-            padding: 8px 10px; 
-            text-align: center; 
-            border-bottom: 1px solid #e2e8f0; 
+        th, td {
+            padding: 8px 10px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
         }
 
-        th { 
-            background-color: var(--primary); 
-            color: white; 
-            font-weight: 600; 
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
         }
 
         .impossible { color: #e53e3e; font-size: 0.9em; background: #fed7d7; padding: 2px 6px; border-radius: 4px; }
         .guaranteed { color: #2f855a; font-weight: bold; background: #c6f6d5; padding: 2px 6px; border-radius: 4px; }
         .highlight { background-color: #ebf8ff; border-left: 3px solid #3182ce; }
         .highlight td:first-child strong { color: #2b6cb0; }
-        
-        /* Specific adjustments for Grade Point column */
+
         .gp-col { font-family: monospace; font-size: 1.1em; color: #4a5568; }
+
+        .save-status {
+            font-size: 0.82em;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 16px;
+        }
 
         @media (max-width: 600px) {
             .dashboard { grid-template-columns: 1fr; }
@@ -152,71 +252,142 @@
 
     <div class="header-container">
         <h1>Semester Target Marks Dashboard</h1>
-        <p class="subtitle">Calculate your required final marks for 5 subjects simultaneously</p>
+        <p class="subtitle">Calculate your required final marks and track projected GPA across subjects</p>
     </div>
 
-    <div class="dashboard" id="dashboard">
-        <!-- Cards injected via JS -->
+    <div class="toolbar">
+        <div class="stats-group">
+            <div class="stat-box">
+                <div class="stat-label">Best Projected GPA</div>
+                <div class="stat-value" id="projected-gpa">0.00</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Active Courses</div>
+                <div class="stat-value" id="course-count">0</div>
+            </div>
+        </div>
+        <div class="actions-group">
+            <button class="btn-primary" onclick="addSubject()">+ Add Subject</button>
+            <button class="btn-secondary" onclick="resetMarks()">Reset Marks</button>
+            <button class="btn-secondary" onclick="resetDefaults()">Restore Defaults</button>
+        </div>
     </div>
+
+    <div class="dashboard" id="dashboard"></div>
+
+    <p class="save-status" id="save-status">Changes auto-save in this browser.</p>
 
     <script>
+        const STORAGE_KEY = 'neduet_dashboard_state_v1';
+
         const grades = [
-            { grade: 'A+', gp: '4.0', min: 94 },
-            { grade: 'A',  gp: '4.0', min: 85 },
-            { grade: 'A-', gp: '3.7', min: 80 },
-            { grade: 'B+', gp: '3.4', min: 75 },
-            { grade: 'B',  gp: '3.0', min: 70 },
-            { grade: 'B-', gp: '2.7', min: 67 },
-            { grade: 'C+', gp: '2.4', min: 64 },
-            { grade: 'C',  gp: '2.0', min: 60 },
-            { grade: 'C-', gp: '1.7', min: 57 },
-            { grade: 'D+', gp: '1.4', min: 54 },
-            { grade: 'D',  gp: '1.0', min: 50 }
+            { grade: 'A+', gp: 4.0, min: 94 },
+            { grade: 'A',  gp: 4.0, min: 85 },
+            { grade: 'A-', gp: 3.7, min: 80 },
+            { grade: 'B+', gp: 3.4, min: 75 },
+            { grade: 'B',  gp: 3.0, min: 70 },
+            { grade: 'B-', gp: 2.7, min: 67 },
+            { grade: 'C+', gp: 2.4, min: 64 },
+            { grade: 'C',  gp: 2.0, min: 60 },
+            { grade: 'C-', gp: 1.7, min: 57 },
+            { grade: 'D+', gp: 1.4, min: 54 },
+            { grade: 'D',  gp: 1.0, min: 50 }
         ];
 
-        // Pre-populating with subjects
-        const subjects = [
-            { title: "CS-252: Computer Architecture & Org.", type: "both" },
-            { title: "CT-261: Database Management Systems", type: "both" },
-            { title: "EA-218: Business Communication", type: "both" },
-            { title: "MT-272: Linear Algebra & Geometry", type: "theory" },
-            { title: "EC-209: Financial & Cost Accounting", type: "theory" }
+        const defaultSubjects = [
+            { title: "CS-252: Computer Architecture & Org.", type: "both", credits: 4, thSessional: 0, prSessional: 0, prFinal: 0 },
+            { title: "CT-261: Database Management Systems", type: "both", credits: 4, thSessional: 0, prSessional: 0, prFinal: 0 },
+            { title: "EA-218: Business Communication", type: "both", credits: 2, thSessional: 0, prSessional: 0, prFinal: 0 },
+            { title: "MT-272: Linear Algebra & Geometry", type: "theory", credits: 3, thSessional: 0, prSessional: 0, prFinal: 0 },
+            { title: "EC-209: Financial & Cost Accounting", type: "theory", credits: 3, thSessional: 0, prSessional: 0, prFinal: 0 }
         ];
 
-        function initDashboard() {
+        let subjects = [];
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        subjects = parsed;
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.warn('Could not load saved state:', err);
+            }
+            subjects = JSON.parse(JSON.stringify(defaultSubjects));
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(subjects));
+                const statusEl = document.getElementById('save-status');
+                if (statusEl) {
+                    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    statusEl.textContent = `Saved automatically at ${now}`;
+                }
+            } catch (err) {
+                console.warn('Could not save state:', err);
+            }
+        }
+
+        function clampValue(val, min, max) {
+            const num = parseFloat(val);
+            if (Number.isNaN(num)) return 0;
+            return Math.min(max, Math.max(min, num));
+        }
+
+        function renderDashboard() {
             const dashboard = document.getElementById('dashboard');
-            
+            dashboard.innerHTML = '';
+
             subjects.forEach((sub, i) => {
                 const isBoth = sub.type === 'both';
-                const prDisplay = isBoth ? 'block' : 'none';
-                
+                const prDisplay = isBoth ? 'grid' : 'none';
+
                 const cardHTML = `
                     <div class="card" id="card-${i}">
                         <div class="card-header">
-                            <input type="text" value="${sub.title}" placeholder="Enter Course Name">
-                            <select id="type-${i}" onchange="toggleType(${i})" style="margin-top: 10px;">
-                                <option value="theory" ${!isBoth ? 'selected' : ''}>Theory Only (100 Marks)</option>
-                                <option value="both" ${isBoth ? 'selected' : ''}>Theory + Practical (150 Marks)</option>
-                            </select>
+                            <div class="card-top-row">
+                                <input type="text" value="${escapeHtml(sub.title)}" placeholder="Enter Course Name" oninput="updateTitle(${i}, this.value)">
+                                <button class="btn-remove" onclick="removeSubject(${i})" title="Remove Subject">Remove</button>
+                            </div>
+                            <div class="form-row" style="margin-top: 10px; margin-bottom: 0;">
+                                <div>
+                                    <label>Assessment Type</label>
+                                    <select id="type-${i}" onchange="changeType(${i}, this.value)">
+                                        <option value="theory" ${!isBoth ? 'selected' : ''}>Theory Only (100 Marks)</option>
+                                        <option value="both" ${isBoth ? 'selected' : ''}>Theory + Practical (150 Marks)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Credit Hours</label>
+                                    <input type="number" id="credits-${i}" min="1" max="6" step="1" value="${sub.credits || 3}" oninput="updateCredits(${i}, this.value)">
+                                </div>
+                            </div>
                         </div>
-                        
+
                         <div class="form-row full">
                             <div>
                                 <label>Theory Sessional (out of 40)</label>
-                                <input type="number" id="thSessional-${i}" min="0" max="40" value="0" step="0.5" oninput="calculate(${i})">
+                                <input type="number" id="thSessional-${i}" min="0" max="40" value="${sub.thSessional}" step="0.5" oninput="updateMark(${i}, 'thSessional', this.value, 40)">
                             </div>
                         </div>
-                        
+
                         <div class="form-row pr-group-${i}" style="display: ${prDisplay};">
                             <div>
                                 <label>Pr. Sessional (out of 30)</label>
-                                <input type="number" id="prSessional-${i}" min="0" max="30" value="0" step="0.5" oninput="calculate(${i})">
+                                <input type="number" id="prSessional-${i}" min="0" max="30" value="${sub.prSessional}" step="0.5" oninput="updateMark(${i}, 'prSessional', this.value, 30)">
                             </div>
                             <div>
                                 <label>Pr. Final/Lab (out of 20)</label>
-                                <input type="number" id="prFinal-${i}" min="0" max="20" value="0" step="0.5" oninput="calculate(${i})">
+                                <input type="number" id="prFinal-${i}" min="0" max="20" value="${sub.prFinal}" step="0.5" oninput="updateMark(${i}, 'prFinal', this.value, 20)">
                             </div>
                         </div>
+
+                        <div class="card-summary" id="summary-${i}"></div>
 
                         <table>
                             <thead>
@@ -227,78 +398,174 @@
                                     <th>Th. Final Needed (Max 60)</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbody-${i}">
-                                <!-- Filled by JS -->
-                            </tbody>
+                            <tbody id="tbody-${i}"></tbody>
                         </table>
                     </div>
                 `;
                 dashboard.innerHTML += cardHTML;
             });
 
-            // Initial calculation for all
-            subjects.forEach((_, i) => calculate(i));
+            recalculateAll();
         }
 
-        function toggleType(index) {
-            const type = document.getElementById(`type-${index}`).value;
-            const prGroups = document.querySelectorAll(`.pr-group-${index}`);
-            prGroups.forEach(el => el.style.display = type === 'both' ? 'flex' : 'none');
-            calculate(index);
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
         }
 
-        function calculate(index) {
-            const type = document.getElementById(`type-${index}`).value;
-            let thSessional = parseFloat(document.getElementById(`thSessional-${index}`).value) || 0;
-            let prSessional = parseFloat(document.getElementById(`prSessional-${index}`).value) || 0;
-            let prFinal = parseFloat(document.getElementById(`prFinal-${index}`).value) || 0;
-            
-            const tbody = document.getElementById(`tbody-${index}`);
-            tbody.innerHTML = '';
-            
-            let maxFinal = 60;
-            let highestAchievableIndex = -1;
+        function updateTitle(index, val) {
+            subjects[index].title = val;
+            saveState();
+        }
 
-            grades.forEach((g, idx) => {
-                let requiredFinal = 0;
-                if (type === 'theory') {
-                    requiredFinal = g.min - thSessional;
-                } else {
-                    requiredFinal = (g.min * 1.5) - (thSessional + prSessional + prFinal);
-                }
-                
-                let statusHtml = '';
-                let isAchievable = false;
-                
-                if (requiredFinal > maxFinal) {
-                    statusHtml = '<span class="impossible">Imp. (>' + maxFinal + ')</span>';
-                } else if (requiredFinal <= 0) {
-                    statusHtml = '<span class="guaranteed">Guaranteed</span>';
-                    isAchievable = true;
-                } else {
-                    statusHtml = '<strong>' + requiredFinal.toFixed(1) + '</strong>';
-                    isAchievable = true;
-                }
+        function changeType(index, val) {
+            subjects[index].type = val;
+            const prGroup = document.querySelector(`.pr-group-${index}`);
+            if (prGroup) {
+                prGroup.style.display = val === 'both' ? 'grid' : 'none';
+            }
+            saveState();
+            recalculateAll();
+        }
 
-                if (isAchievable && highestAchievableIndex === -1) {
-                    highestAchievableIndex = idx;
-                }
+        function updateCredits(index, val) {
+            const clamped = clampValue(val, 1, 6);
+            subjects[index].credits = clamped;
+            saveState();
+            recalculateAll();
+        }
 
-                const row = document.createElement('tr');
-                if (idx === highestAchievableIndex) row.classList.add('highlight');
-                
-                row.innerHTML = `
-                    <td><strong>${g.grade}</strong></td>
-                    <td class="gp-col">${g.gp}</td>
-                    <td>${g.min}%</td>
-                    <td>${statusHtml}</td>
-                `;
-                tbody.appendChild(row);
+        function updateMark(index, field, val, max) {
+            const clamped = clampValue(val, 0, max);
+            subjects[index][field] = clamped;
+            const inputEl = document.getElementById(`${field}-${index}`);
+            if (inputEl && parseFloat(val) > max) {
+                inputEl.value = clamped;
+            }
+            saveState();
+            recalculateAll();
+        }
+
+        function addSubject() {
+            subjects.push({
+                title: `New Subject ${subjects.length + 1}`,
+                type: "theory",
+                credits: 3,
+                thSessional: 0,
+                prSessional: 0,
+                prFinal: 0
             });
+            saveState();
+            renderDashboard();
         }
 
-        // Run on load
-        window.onload = initDashboard;
+        function removeSubject(index) {
+            if (subjects.length <= 1) return;
+            subjects.splice(index, 1);
+            saveState();
+            renderDashboard();
+        }
+
+        function resetMarks() {
+            subjects.forEach(sub => {
+                sub.thSessional = 0;
+                sub.prSessional = 0;
+                sub.prFinal = 0;
+            });
+            saveState();
+            renderDashboard();
+        }
+
+        function resetDefaults() {
+            subjects = JSON.parse(JSON.stringify(defaultSubjects));
+            saveState();
+            renderDashboard();
+        }
+
+        function recalculateAll() {
+            let totalQualityPoints = 0;
+            let totalCredits = 0;
+            const maxFinal = 60;
+
+            subjects.forEach((sub, i) => {
+                const isBoth = sub.type === 'both';
+                const thSessional = parseFloat(sub.thSessional) || 0;
+                const prSessional = isBoth ? (parseFloat(sub.prSessional) || 0) : 0;
+                const prFinal = isBoth ? (parseFloat(sub.prFinal) || 0) : 0;
+                const credits = parseFloat(sub.credits) || 3;
+
+                const bankedMarks = isBoth ? (thSessional + prSessional + prFinal) : thSessional;
+                const maxBeforeFinal = isBoth ? 90 : 40;
+                const summaryEl = document.getElementById(`summary-${i}`);
+                if (summaryEl) {
+                    summaryEl.textContent = `Banked before Th. Final: ${bankedMarks.toFixed(1)} / ${maxBeforeFinal}`;
+                }
+
+                const tbody = document.getElementById(`tbody-${i}`);
+                if (!tbody) return;
+                tbody.innerHTML = '';
+
+                let highestAchievableIndex = -1;
+                let highestGp = 0.0;
+
+                grades.forEach((g, idx) => {
+                    const requiredFinal = isBoth
+                        ? (g.min * 1.5) - (thSessional + prSessional + prFinal)
+                        : g.min - thSessional;
+
+                    let statusHtml = '';
+                    let isAchievable = false;
+
+                    if (requiredFinal > maxFinal) {
+                        statusHtml = `<span class="impossible">Imp. (&gt;${maxFinal})</span>`;
+                    } else if (requiredFinal <= 0) {
+                        statusHtml = '<span class="guaranteed">Guaranteed</span>';
+                        isAchievable = true;
+                    } else {
+                        statusHtml = `<strong>${requiredFinal.toFixed(1)}</strong>`;
+                        isAchievable = true;
+                    }
+
+                    if (isAchievable && highestAchievableIndex === -1) {
+                        highestAchievableIndex = idx;
+                        highestGp = g.gp;
+                    }
+
+                    const row = document.createElement('tr');
+                    if (idx === highestAchievableIndex) {
+                        row.classList.add('highlight');
+                    }
+
+                    row.innerHTML = `
+                        <td><strong>${g.grade}</strong></td>
+                        <td class="gp-col">${g.gp.toFixed(1)}</td>
+                        <td>${g.min}%</td>
+                        <td>${statusHtml}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                totalQualityPoints += highestGp * credits;
+                totalCredits += credits;
+            });
+
+            const gpaEl = document.getElementById('projected-gpa');
+            const countEl = document.getElementById('course-count');
+            if (gpaEl) {
+                gpaEl.textContent = totalCredits > 0 ? (totalQualityPoints / totalCredits).toFixed(2) : '0.00';
+            }
+            if (countEl) {
+                countEl.textContent = String(subjects.length);
+            }
+        }
+
+        window.onload = function () {
+            loadState();
+            renderDashboard();
+        };
     </script>
 </body>
 </html>
