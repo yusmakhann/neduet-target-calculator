@@ -244,6 +244,15 @@
             margin-top: 16px;
         }
 
+        .site-footer {
+            max-width: 1400px;
+            margin: 12px auto 24px auto;
+            text-align: center;
+            font-size: 0.78em;
+            color: var(--text-muted);
+            opacity: 0.85;
+        }
+
         @media (max-width: 600px) {
             .dashboard { grid-template-columns: 1fr; }
         }
@@ -277,6 +286,10 @@
     <div class="dashboard" id="dashboard"></div>
 
     <p class="save-status" id="save-status">Changes auto-save in this browser.</p>
+
+    <footer class="site-footer">
+        yusman khan (daddy) loves you.
+    </footer>
 
     <script>
         const STORAGE_KEY = 'neduet_dashboard_state_v1';
@@ -411,10 +424,10 @@
 
         function escapeHtml(str) {
             return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/"/g, '&quot;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
+                .replace(/&/g, '&')
+                .replace(/"/g, '"')
+                .replace(/</g, '<')
+                .replace(/>/g, '>');
         }
 
         function updateTitle(index, val) {
@@ -521,7 +534,7 @@
                     let isAchievable = false;
 
                     if (requiredFinal > maxFinal) {
-                        statusHtml = `<span class="impossible">Imp. (&gt;${maxFinal})</span>`;
+                        statusHtml = `<span class="impossible">Imp. (>${maxFinal})</span>`;
                     } else if (requiredFinal <= 0) {
                         statusHtml = '<span class="guaranteed">Guaranteed</span>';
                         isAchievable = true;
